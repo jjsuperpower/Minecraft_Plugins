@@ -1,0 +1,14 @@
+name: test1
+version: 0.0.1
+main: main
+descritpion: This is a command for testing
+
+commands:
+    test1:
+        usage: figure it out yourself
+    on_tnt:
+    off_tnt:
+    # compass:
+    mine:
+        permissions:
+            default: op

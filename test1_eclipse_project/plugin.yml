@@ -1,9 +1,0 @@
-name: test1
-version: 0.0.1
-main: me.jon.test1.main
-descritpion: This is a command for testing
-
-commands:
-    test1:
-        usage: figure it out yourself
-        
