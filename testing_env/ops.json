@@ -1,1 +1,8 @@
-[]
+[
+  {
+    "uuid": "2ecd58b1-c5a9-4af3-8dd2-be6d91ca7afc",
+    "name": "jjsuperpower",
+    "level": 4,
+    "bypassesPlayerLimit": false
+  }
+]
