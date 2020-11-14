@@ -1,0 +1,9 @@
+MinTimer: 2400
+MaxTimer: 6000
+Warning: 200
+Safe: 0
+TeleportMode: random
+RandomSpawn: 'true'
+KillPearls: 'true'
+SendChunks: 'true'
+World: world

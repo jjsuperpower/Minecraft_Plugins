@@ -1,4 +1,31 @@
-main: main
+main: jons_plugin.main
 name: jons_plugin
 version: 0.0.1
-descritpion: This my custom coded plugin
+descritpion: This is my custom coded plugin
+
+commands:
+    strike:
+    mines:
+        usage: "Usage: /<command> [ on | off ]"
+        descritpion: "Controls weather mines are on, p.s don't stand on tnt if this is on"
+        permissions:
+            default: op
+    
+    boom_arrows:
+        usage: "Usage: /<command> [ on | off | give ]"
+        descritpion: "Enables explosive arrows"
+        permissions:
+            default: op
+
+    shared_damage:
+        usage: "Usage: /<command> [ on | off ]"
+        description: "Turns on shared damage for all players"
+        permissions:
+            default: op
+    test:
+    
+    # reset_world:
+    #     usage: "Usage: /<command>"
+    #     descritpion: "RESETS THE WORLD"
+    #     permissions:
+    #         default: op

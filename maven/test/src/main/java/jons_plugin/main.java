@@ -14,7 +14,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
@@ -24,27 +26,29 @@ import org.bukkit.scheduler.BukkitScheduler;
 
 public class main extends JavaPlugin implements org.bukkit.event.Listener {
 
-    BukkitScheduler scheduler;
-    int taskId = 0;
+	BukkitScheduler scheduler;
+	int taskId = 0;
 	boolean mines = false;
-	boolean boom_arrows=false;
-	
+	boolean boom_arrows = false;
+	boolean damage_self_triggered = false; // stops recursive damage which would be BAD
+	boolean shared_damage_on = false;
+
 	@Override
-	public void onEnable()	{
+	public void onEnable() {
 		System.out.println("test1 enabled");
-//		this.getCommand("test1").setExecutor((CommandExecutor)new commands());
+		//		this.getCommand("test1").setExecutor((CommandExecutor)new commands());
 		Bukkit.getServer().getPluginManager().registerEvents(this, this);
-        Bukkit.getServer().broadcastMessage("test1 is enabled");
+		Bukkit.getServer().broadcastMessage("test1 is enabled");
 	}
-	
+
 	@Override
-	public void onDisable()	{
+	public void onDisable() {
 		System.out.println("test1 disabled");
 	}
-	
+
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-		Player player = (Player)sender;
+		Player player = (Player) sender;
 
 		if (cmd.getName().equalsIgnoreCase("strike")) { // If the player typed /basic then do the following, note: If you only registered this executor for one command, you don't need this
 			// doSomething
@@ -54,29 +58,51 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 		}
 
 		//switch for boom_arrows
-		if (cmd.getName().equalsIgnoreCase("boom_arrow")) {
+		if (cmd.getName().equalsIgnoreCase("boom_arrows")) {
+			if (args.length == 0) {
+				return false;
+			}
 			if (args[0].equalsIgnoreCase("on")) {
 				this.boom_arrows = true;
-			} else if (args[0].equalsIgnoreCase("on")) {
+				return true;
+			}
+			if (args[0].equalsIgnoreCase("off")) {
 				this.boom_arrows = false;
+				return true;
 			}
 		}
-		//controlls miner
-		if (cmd.getName().equalsIgnoreCase("mines"))   {
-				if(args[0].equalsIgnoreCase("on"))	{
-					mines = true;
-				} else if (args[0].equalsIgnoreCase("off")) {
-					this.mines = false;
-				}
-	
+
+		if (cmd.getName().equalsIgnoreCase("shared_damage")) {
+			if (args.length == 0) {
+				return false;
 			}
-		
-		//gives player mine_hoe
-		if (this.mines) {
-			if (cmd.getName().equalsIgnoreCase("mine")) {
+			if (args[0].equalsIgnoreCase("on")) {
+				this.shared_damage_on = true;
+				return true;
+			}
+			if (args[0].equalsIgnoreCase("off")) {
+				this.shared_damage_on = false;
+				return true;
+			}
+		}
+
+		//controlls miner
+		if (cmd.getName().equalsIgnoreCase("mines")) {
+			if (args.length == 0) {
+				return false;
+			}
+			if (args[0].equalsIgnoreCase("on")) {
+				mines = true;
+			} else if (args[0].equalsIgnoreCase("off")) {
+				this.mines = false;
+				return true;
+			} else if (args[0].equalsIgnoreCase("give")) {
+				if (this.mines == false) {
+					player.sendMessage("Automaticaly turning mines on");
+					this.mines = true;
+				}
 				ItemStack boomHoe = new ItemStack(Material.GOLD_HOE);
 				ItemMeta boomHoeMeta = boomHoe.getItemMeta();
-
 				boomHoe.setDurability((short) 0);
 				boomHoeMeta.setDisplayName(ChatColor.GREEN + "" + ChatColor.BOLD + "Miner");
 				List<String> lore = new ArrayList<String>();
@@ -85,14 +111,27 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 				boomHoeMeta.setLore(lore);
 				boomHoe.setItemMeta(boomHoeMeta);
 				player.getWorld().dropItem(player.getLocation(), boomHoe);
+				return true;
 			}
-		} else {
-			player.sendMessage("You must enable mines first using 'mines on");
-		}
 
+			if (cmd.getName().equalsIgnoreCase("test")) {
+				Location loc = player.getLocation();
+				// this.scheduler = this.getServer().getScheduler();
+				// this.taskId = scheduler.scheduleSyncRepeatingTask(this, new Runnable() {
+				// @Override
+				// public void run() {
+				//         player.getTargetBlock((Set<Material>) null, 200).setType(Material.TNT);
+				// }
+				for (int i = 1; i <= (int)loc.getY(); i++) {
+					if (loc.setY(i); {
+						loc.getBlock().setType(Material.AIR);
+					}
+			}
+
+		}
 		return true;
 	}
-	
+
 	@EventHandler
 	public void onLogin(PlayerJoinEvent event) {
 		Player player = (Player) event.getPlayer();
@@ -101,21 +140,51 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 
 	//for boom arrows
 	@EventHandler
-	public void OnProjectileHitEvent(ProjectileHitEvent event)	{
+	public void OnProjectileHitEvent(ProjectileHitEvent event) {
 		//Entity hitEntity = event.getHitEntity();
-		Block block = event.getHitBlock();
-		if (this.boom_arrows) {
-			if (block != null) {
-				block.getWorld().createExplosion(block.getLocation(), (float) 1.0);
-			} else {
-				Entity entity = event.getHitEntity();
-				entity.getWorld().createExplosion(entity.getLocation(), (float) 1.0);
+		if (this.boom_arrows)  {
+			Block block = event.getHitBlock();
+			if (this.boom_arrows) {
+				if (block != null) {
+					block.getWorld().createExplosion(block.getLocation(), (float) 1.0);
+				} else {
+					Entity entity = event.getHitEntity();
+					entity.getWorld().createExplosion(entity.getLocation(), (float) 1.0);
+				}
+			}
+		}
+	}
+	
+	@EventHandler
+	public void onInteract(PlayerInteractEvent event)	{
+		if(this.mines)	{
+			Player player = event.getPlayer();
+			// player.sendMessage("boomHoe event triggered");
+			ItemStack item = player.getInventory().getItemInHand();
+			if(item.getItemMeta().getDisplayName().contains("Miner"))	{
+				if(item.getItemMeta().hasLore())	{
+					if(item.getDurability() < 20)	{
+						// player.sendMessage("if statment true");
+						Location locLooking = player.getTargetBlock((Set<Material>) null, 10).getLocation();
+						Block tntBlock = locLooking.add(0, -1, 0).getBlock();
+						tntBlock.setType(Material.TNT);
+						
+
+						short Durability = item.getDurability();
+						Durability++;
+						item.setDurability(Durability);
+					} else {
+						player.getInventory().remove(item);
+					}
+					event.setCancelled(true);
+				}
 			}
 		}
 	}
 
 	@EventHandler
 	public void onMove(PlayerMoveEvent event) {
+
 		//handles mines
 		if (this.mines) {
 			Player player = event.getPlayer();
@@ -128,8 +197,31 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 					player.getWorld().createExplosion(pLocation, (float) 4.0);
 				}
 			}
+		
+
+		}
+	}
+
+
+	@EventHandler
+	public void onDamage(EntityDamageEvent event) {
+		if (this.shared_damage_on) {
+			Entity entity = event.getEntity();
+			if (!this.damage_self_triggered && entity instanceof Player) {
+				this.damage_self_triggered = true;
+				for (Player player : Bukkit.getOnlinePlayers()) {
+					player.damage(event.getDamage());
+				}
+				this.damage_self_triggered = false;
+				event.setCancelled(true);
+			}
 		}
 
+		//not usefull but good to know
+		//Bukkit.getPluginManager().callEvent(new EntityDamageEvent((Entity) player, null, event.getDamage()));
+		//Bukkit.getServer().broadcastMessage("Damage event called " + String.valueOf(this.damage_self_triggered));
+		//Bukkit.getServer().broadcastMessage(event.getEntity().getName());
+		//player.sendMessage(String.valueOf(event.getDamage()));
 	}
 		
 }

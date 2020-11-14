@@ -1,0 +1,21 @@
+############################################################################
+# World Border Config File                                                 #
+# Disclaimer: If you do not know what you're doing, don't change anything! #
+# Completely developed by St3fan[NL] (www.st3fannl.nl)                     #
+############################################################################
+
+expand-border-time: 60
+#Time in seconds it takes before the world border expands.
+expand-border-amount: 5
+#Amount in blocks it expands the border with every specified amount of seconds.
+shrik-on-death: true
+#Shrink the border upon a player dying
+death-amount: 10
+#Amount in blocks it shrinks the border on every death.
+
+
+######################################################################
+# Config Version                                                     #
+# Do not change if you do not want this whole config to be resetted  #
+######################################################################
+version: 1.0
