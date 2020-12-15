@@ -3,7 +3,6 @@ package jons_plugin;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -22,21 +21,24 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitScheduler;
 
 public class main extends JavaPlugin implements org.bukkit.event.Listener {
 
-	BukkitScheduler scheduler;
-	int taskId = 0;
 	boolean mines = false;
 	boolean boom_arrows = false;
 	boolean damage_self_triggered = false; // stops recursive damage which would be BAD
 	boolean shared_damage_on = false;
+	boolean pits_on = false;
+
+	BukkitScheduler scheduler;
+    int taskId = 0;
 
 	@Override
 	public void onEnable() {
 		System.out.println("test1 enabled");
-		//		this.getCommand("test1").setExecutor((CommandExecutor)new commands());
+		// this.getCommand("test1").setExecutor((CommandExecutor)new commands());
 		Bukkit.getServer().getPluginManager().registerEvents(this, this);
 		Bukkit.getServer().broadcastMessage("test1 is enabled");
 	}
@@ -50,14 +52,16 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		Player player = (Player) sender;
 
-		if (cmd.getName().equalsIgnoreCase("strike")) { // If the player typed /basic then do the following, note: If you only registered this executor for one command, you don't need this
+		if (cmd.getName().equalsIgnoreCase("strike")) { // If the player typed /basic then do the following, note: If
+														// you only registered this executor for one command, you don't
+														// need this
 			// doSomething
 			player.getWorld().strikeLightning(player.getTargetBlock((Set<Material>) null, 200).getLocation());
 			// Bukkit.getServer().broadcastMessage("general message triggered");
 			// player.sendMessage("you used a custom command");
 		}
 
-		//switch for boom_arrows
+		// switch for boom_arrows
 		if (cmd.getName().equalsIgnoreCase("boom_arrows")) {
 			if (args.length == 0) {
 				return false;
@@ -86,7 +90,21 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 			}
 		}
 
-		//controlls miner
+		if (cmd.getName().equalsIgnoreCase("pits")) {
+			if (args.length == 0) {
+				return false;
+			}
+			if (args[0].equalsIgnoreCase("on")) {
+				this.pits_on = true;
+				return true;
+			}
+			if (args[0].equalsIgnoreCase("off")) {
+				this.pits_on = false;
+				return true;
+			}
+		}
+
+		// controlls miner
 		if (cmd.getName().equalsIgnoreCase("mines")) {
 			if (args.length == 0) {
 				return false;
@@ -113,22 +131,8 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 				player.getWorld().dropItem(player.getLocation(), boomHoe);
 				return true;
 			}
-
-			if (cmd.getName().equalsIgnoreCase("test")) {
-				Location loc = player.getLocation();
-				// this.scheduler = this.getServer().getScheduler();
-				// this.taskId = scheduler.scheduleSyncRepeatingTask(this, new Runnable() {
-				// @Override
-				// public void run() {
-				//         player.getTargetBlock((Set<Material>) null, 200).setType(Material.TNT);
-				// }
-				for (int i = 1; i <= (int)loc.getY(); i++) {
-					if (loc.setY(i); {
-						loc.getBlock().setType(Material.AIR);
-					}
-			}
-
 		}
+				
 		return true;
 	}
 
@@ -197,8 +201,25 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 					player.getWorld().createExplosion(pLocation, (float) 4.0);
 				}
 			}
-		
 
+		}
+		if (this.pits_on) {
+			Location loc = event.getPlayer().getLocation();
+			int player_loc_y = (int) loc.getY();
+			loc.setY((double) 1);
+
+			//this took a while to get right
+			new BukkitRunnable() {
+				public void run() {
+					loc.add(0, 1, 0);
+					if (loc.getBlock().getType() != Material.OBSIDIAN) {
+						loc.getBlock().setType(Material.AIR);
+					}
+					if ((int) loc.getY() >= player_loc_y) {
+						cancel();
+					}
+				}
+			}.runTaskTimer(this, 15, 5);
 		}
 	}
 

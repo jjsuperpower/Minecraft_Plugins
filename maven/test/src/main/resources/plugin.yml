@@ -22,7 +22,12 @@ commands:
         description: "Turns on shared damage for all players"
         permissions:
             default: op
-    test:
+
+    pits:
+        usage: "Usage: /<command> [ on | off ]"
+        description: "Turns on pits for all players - be carefull were you step"
+        permissions:
+            default: op
     
     # reset_world:
     #     usage: "Usage: /<command>"
