@@ -1,0 +1,55 @@
+main: me.myself.i.main
+name: jons_plugin
+version: 0.0.1
+descritpion: This is my custom coded plugin
+load:
+
+commands:
+    strike:
+    mines:
+        usage: "Usage: /<command> [ on | off ]"
+        descritpion: "Controls weather mines are on, p.s don't stand on tnt if this is on"
+        permissions:
+            default: op
+    
+    boom_arrows:
+        usage: "Usage: /<command> [ on | off | give ]"
+        descritpion: "Enables explosive arrows"
+        permissions:
+            default: op
+
+    shared_damage:
+        usage: "Usage: /<command> [ on | off ]"
+        description: "Turns on shared damage for all players"
+        permissions:
+            default: op
+
+    pits:
+        usage: "Usage: /<command> [ on | off ]"
+        description: "Turns on pits for all players - be carefull were you step"
+        permissions:
+            default: op
+
+    freeze:
+        usage: "Usage: /<command> [ on | off ]"
+        description: "Freezes all players in survival"
+        permissions:
+            default: op
+
+    pvp:
+        usage: "Usage: /<command> [ on | off ]"
+        description: "Enables pvp"
+        permissions:
+            default: op
+
+    dechunk:
+        usage: "Usage: /<command> [ on | off ]"
+        description: "Unloads Chunks"
+        permissions:
+            default: op
+    
+    # reset_world:
+    #     usage: "Usage: /<command>"
+    #     descritpion: "RESETS THE WORLD"
+    #     permissions:
+    #         default: op

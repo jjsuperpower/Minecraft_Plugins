@@ -8,7 +8,7 @@
             "type": "java",
             "name": "Debug (Launch) - Current File",
             "request": "launch",
-            "mainClass": "${file}"
+            "mainClass": "maven/test/src/main/java/jons_plugin/jons_plugin.java"
         }
     ]
 }
