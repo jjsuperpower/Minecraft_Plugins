@@ -1,8 +1,8 @@
 package me.myself.i;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
@@ -13,7 +13,6 @@ import org.bukkit.Chunk;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -27,7 +26,6 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -45,10 +43,11 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 	boolean pvp = true;
 	boolean dechunk = false;
 
-	int chunks_loaded = 0;
-
-	Queue<Integer> deChunks_Queue = new PriorityQueue<Integer>();
-
+	int DECHUNK_RADIUS = 1000;
+	int PLAYER_DECHUNK_RADIUS = 4;
+	boolean[][] deChunked = new boolean[2 * DECHUNK_RADIUS][2 * DECHUNK_RADIUS];
+	Queue<Chunk> deChunks_Queue = new LinkedList<Chunk>();
+	
 
 	BukkitScheduler scheduler;
 	int taskId = 0;
@@ -59,6 +58,13 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 		// this.getCommand("test1").setExecutor((CommandExecutor)new commands());
 		Bukkit.getServer().getPluginManager().registerEvents(this, this);
 		Bukkit.getServer().broadcastMessage("test1 is enabled");
+
+		//initialize array the keeps track whick chunks have been deleted
+		for (int i = 0; i < 2 * DECHUNK_RADIUS; i++) {
+			for (int j = 0; j < 2 * DECHUNK_RADIUS; j++) {
+				deChunked[i][j] = false;
+			}
+		}
 	}
 
 	@Override
@@ -74,7 +80,7 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 														// you only registered this executor for one command, you don't
 														// need this
 														// doSomething
-			player.getWorld().strikeLightning(player.getTargetBlock((Set<Material>) null, 200).getLocation());
+			player.getWorld().strikeLightning(player.getTargetBlock((Set<Material>) null, 200).getLocation().add(0,3,0));
 			// Bukkit.getServer().broadcastMessage("general message triggered");
 			// player.sendMessage("you used a custom command");
 		}
@@ -151,39 +157,72 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 		}
 
 		if (cmd.getName().equalsIgnoreCase("dechunk")) {
-			World w = player.getWorld();
+
+			//checks chunks around player
+			new BukkitRunnable() {
+				int count = 0;
+				public void run() {
+					for (Player player : Bukkit.getServer().getOnlinePlayers()) {
+						//Bukkit.getServer().broadcastMessage("Checking  " + player.getName());
+						//Bukkit.getServer().broadcastMessage("array length =  " + String.valueOf(count));
+						Chunk c = player.getLocation().getChunk();
+						int x = c.getX();
+						int z = c.getZ();
+						for (int i = -1*PLAYER_DECHUNK_RADIUS; i < PLAYER_DECHUNK_RADIUS + 1; i++) {
+							for (int j = -1 * PLAYER_DECHUNK_RADIUS; j < PLAYER_DECHUNK_RADIUS + 1; j++) {
+								//Bukkit.getServer().broadcastMessage("Checking  " + String.valueOf(x + i) + " " + String.valueOf(z + i));
+								if (deChunked[x + i + DECHUNK_RADIUS][z + j + DECHUNK_RADIUS] == false) {
+									deChunked[x + i + DECHUNK_RADIUS][z + j + DECHUNK_RADIUS] = true;
+									deChunks_Queue.add(player.getWorld().getChunkAt(x + i, z + j));
+									count++;
+									//Bukkit.getServer().broadcastMessage("Found Chunck at " + String.valueOf(x + i) + " " + String.valueOf(z + j));
+								}
+							}
+						}
+					}	
+				}
+			}.runTaskTimer(this, 5, 40);
+
+			//deletes chunks
 			new BukkitRunnable() {
 				int rand_numb;
-				int c_x, c_z;
+				Material m;
 				Chunk c;
 
 				public void run() {
-					// while ((c != null) && !c.isLoaded()) {
-					// 	c = deChunks_Queue.poll();
-					// }
-					do {
-						c_x = deChunks_Queue.poll();
-						c_z = deChunks_Queue.poll();
-						c = w.getChunkAt(c_x, c_z);
-					} while ((c != null) && !c.isLoaded());
-
-					//Bukkit.getServer().broadcastMessage("Test " + String.valueOf(c));
+					
+					c = deChunks_Queue.poll();
 					if ((c != null) && c.isLoaded()) {
 						rand_numb = ThreadLocalRandom.current().nextInt(1, 100 + 1);
-						if (rand_numb < 101) {
-							for (int x = 0; x < 16; x++) {
-								for (int z = 0; z < 16; z++) {
-									for (int y = 0; y < 128; y++) {
-										c.getBlock(x, y, z).setType(Material.AIR);
+						if (rand_numb < 85) {
+							rand_numb = ThreadLocalRandom.current().nextInt(1, 100 + 1);
+							if (rand_numb < 101) {
+								for (int x = 0; x < 16; x++) {
+									for (int z = 0; z < 16; z++) {
+										for (int y = 0; y < 128; y++) {
+											m = c.getBlock(x, y, z).getType();
+											//using OR is faster than AND
+											if ((m == Material.OBSIDIAN)
+													|| (m == Material.ENDER_PORTAL_FRAME)
+													|| (m == Material.ENDER_PORTAL)
+													|| (m == Material.MOB_SPAWNER)
+													|| (m == Material.NETHER_BRICK)
+											);
+											else {
+												c.getBlock(x, y, z).setType(Material.AIR);
+											}
+										}
 									}
 								}
+								//Bukkit.getServer().broadcastMessage(
+										//"DeChunked " + String.valueOf(c.getX()) + " " + String.valueOf(c.getZ()));
 							}
-							Bukkit.getServer()
-									.broadcastMessage("DeChunked " + String.valueOf(c_x) + " " + String.valueOf(c_z));
 						}
 					}
 				}
-			}.runTaskTimer(this, 2, 10);
+			}.runTaskTimer(this, 1, 15);
+
+
 
 			// Chunk c_p = w.getChunkAt(player.getLocation());
 			// int center_i = c_p.getX();
@@ -230,36 +269,38 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 			// wc.createWorld();
 		}
 
-		// controlls miner
-		if (cmd.getName().equalsIgnoreCase("mines")) {
-			if (args.length == 0) {
-				return false;
-			}
-			if (args[0].equalsIgnoreCase("on")) {
-				mines = true;
-			} else if (args[0].equalsIgnoreCase("off")) {
-				this.mines = false;
-				return true;
-			} else if (args[0].equalsIgnoreCase("give")) {
-				if (this.mines == false) {
-					player.sendMessage("Automaticaly turning mines on");
-					this.mines = true;
-				}
-				ItemStack boomHoe = new ItemStack(Material.GOLD_HOE);
-				ItemMeta boomHoeMeta = boomHoe.getItemMeta();
-				boomHoe.setDurability((short) 0);
-				boomHoeMeta.setDisplayName(ChatColor.GREEN + "" + ChatColor.BOLD + "Miner");
-				List<String> lore = new ArrayList<String>();
-				lore.add("");
-				lore.add(ChatColor.GOLD + "" + ChatColor.ITALIC + "Layes Mines");
-				boomHoeMeta.setLore(lore);
-				boomHoe.setItemMeta(boomHoeMeta);
-				player.getWorld().dropItem(player.getLocation(), boomHoe);
-				return true;
-			}
-		}
+	// controlls miner
+	if(cmd.getName().equalsIgnoreCase("mines"))
 
-		return true;
+	{
+		if (args.length == 0) {
+			return false;
+		}
+		if (args[0].equalsIgnoreCase("on")) {
+			mines = true;
+		} else if (args[0].equalsIgnoreCase("off")) {
+			this.mines = false;
+			return true;
+		} else if (args[0].equalsIgnoreCase("give")) {
+			if (this.mines == false) {
+				player.sendMessage("Automaticaly turning mines on");
+				this.mines = true;
+			}
+			ItemStack boomHoe = new ItemStack(Material.GOLD_HOE);
+			ItemMeta boomHoeMeta = boomHoe.getItemMeta();
+			boomHoe.setDurability((short) 0);
+			boomHoeMeta.setDisplayName(ChatColor.GREEN + "" + ChatColor.BOLD + "Miner");
+			List<String> lore = new ArrayList<String>();
+			lore.add("");
+			lore.add(ChatColor.GOLD + "" + ChatColor.ITALIC + "Layes Mines");
+			boomHoeMeta.setLore(lore);
+			boomHoe.setItemMeta(boomHoeMeta);
+			player.getWorld().dropItem(player.getLocation(), boomHoe);
+			return true;
+		}
+	}
+
+	return true;
 	}
 
 	@EventHandler
@@ -385,22 +426,20 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 			}
 		}
 	}
-		
 
 	@EventHandler
 	public void onPlayerDeath(PlayerDeathEvent event) {
 		Entity e = event.getEntity();
-		e.getWorld().strikeLightning(e.getLocation());
+		e.getWorld().strikeLightning(e.getLocation().add(0,4,0));
 	}
 
-
-	@EventHandler
-	public void onChunkLoad(ChunkLoadEvent event) {
-		chunks_loaded++;
-		int x = event.getChunk().getX();
-		int z = event.getChunk().getZ();
-		Bukkit.getServer().broadcastMessage("Chunk Loaded " + String.valueOf(x) + " " + String.valueOf(z));
-		deChunks_Queue.add(x);
-		deChunks_Queue.add(z);
-	}
+	// @EventHandler
+	// public void onChunkLoad(ChunkLoadEvent event) {
+	// 	chunks_loaded++;
+	// 	int x = event.getChunk().getX();
+	// 	int z = event.getChunk().getZ();
+	// 	Bukkit.getServer().broadcastMessage("Chunk Loaded " + String.valueOf(x) + " " + String.valueOf(z));
+	// 	deChunks_Queue.add(x);
+	// 	deChunks_Queue.add(z);
+	// }
 }

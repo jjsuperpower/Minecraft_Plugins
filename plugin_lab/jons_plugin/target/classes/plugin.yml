@@ -7,7 +7,7 @@ load:
 commands:
     strike:
     mines:
-        usage: "Usage: /<command> [ on | off ]"
+        usage: "Usage: /<command> [ on | off | give ]"
         descritpion: "Controls weather mines are on, p.s don't stand on tnt if this is on"
         permissions:
             default: op

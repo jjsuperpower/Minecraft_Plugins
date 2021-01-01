@@ -1,13 +1,10 @@
 {
   "minecraft:adventure/adventuring_time": {
     "criteria": {
-      "minecraft:jungle_edge": "2020-12-20 14:35:15 -0600",
-      "minecraft:mountains": "2020-12-20 14:38:07 -0600",
-      "minecraft:jungle": "2020-12-20 14:33:25 -0600",
-      "minecraft:jungle_hills": "2020-12-20 14:32:36 -0600",
-      "minecraft:river": "2020-12-20 14:35:38 -0600",
-      "minecraft:wooded_mountains": "2020-12-20 14:38:04 -0600",
-      "minecraft:plains": "2020-12-20 14:35:17 -0600"
+      "minecraft:forest": "2020-12-21 19:41:39 -0600",
+      "minecraft:mountains": "2020-12-21 19:41:52 -0600",
+      "minecraft:wooded_mountains": "2020-12-21 19:43:23 -0600",
+      "minecraft:plains": "2020-12-21 19:38:15 -0600"
     },
     "done": false
   },
