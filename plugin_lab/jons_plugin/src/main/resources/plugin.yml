@@ -47,7 +47,19 @@ commands:
         description: "Unloads Chunks"
         permissions:
             default: op
+
+    dangerous_anaimals:
+        usage: "Usage: /<command> [ on | off ] [ neutral | hostile ] [ easy | medium | hard | insane ]"
+        description: "Unloads Chunks"
+        permissions:
+            default: op
     
+    antigravity:
+        usage: "Usage: /<command> [ on | off ] [ ammount ]"
+        description: "Turns off gravity"
+        permissions:
+            default: op
+
     # reset_world:
     #     usage: "Usage: /<command>"
     #     descritpion: "RESETS THE WORLD"

@@ -13,14 +13,20 @@ import org.bukkit.Chunk;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Animals;
+import org.bukkit.entity.Creature;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -29,8 +35,12 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitScheduler;
+import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.util.Vector;
 
 public class main extends JavaPlugin implements org.bukkit.event.Listener {
 
@@ -42,12 +52,15 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 	boolean freeze = false;
 	boolean pvp = true;
 	boolean dechunk = false;
+	boolean hostile = false;
+	BukkitTask hostile_id;
+	int neutral = 0;
+	BukkitTask gravity_id;
 
 	int DECHUNK_RADIUS = 1000;
 	int PLAYER_DECHUNK_RADIUS = 4;
 	boolean[][] deChunked = new boolean[2 * DECHUNK_RADIUS][2 * DECHUNK_RADIUS];
 	Queue<Chunk> deChunks_Queue = new LinkedList<Chunk>();
-	
 
 	BukkitScheduler scheduler;
 	int taskId = 0;
@@ -160,7 +173,6 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 
 			//checks chunks around player
 			new BukkitRunnable() {
-				int count = 0;
 				public void run() {
 					for (Player player : Bukkit.getServer().getOnlinePlayers()) {
 						//Bukkit.getServer().broadcastMessage("Checking  " + player.getName());
@@ -174,8 +186,6 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 								if (deChunked[x + i + DECHUNK_RADIUS][z + j + DECHUNK_RADIUS] == false) {
 									deChunked[x + i + DECHUNK_RADIUS][z + j + DECHUNK_RADIUS] = true;
 									deChunks_Queue.add(player.getWorld().getChunkAt(x + i, z + j));
-									count++;
-									//Bukkit.getServer().broadcastMessage("Found Chunck at " + String.valueOf(x + i) + " " + String.valueOf(z + j));
 								}
 							}
 						}
@@ -221,86 +231,221 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 					}
 				}
 			}.runTaskTimer(this, 1, 15);
-
-
-
-			// Chunk c_p = w.getChunkAt(player.getLocation());
-			// int center_i = c_p.getX();
-			// int center_j = c_p.getZ();
-			// new BukkitRunnable() {
-			// 	int i = -5;
-			// 	int j = -5;
-			// 	int rand_numb;
-			// 	public void run() {
-			// 		rand_numb = ThreadLocalRandom.current().nextInt(1, 100 + 1);
-			// 		if (rand_numb < 85) {
-			// 			for (int x = 0; x < 16; x++) {
-			// 				for (int z = 0; z < 16; z++) {
-			// 					for (int y = 0; y < 128; y++) {
-
-			// 						w.getChunkAt(i + center_i, j + center_j).getBlock(x, y, z).setType(Material.AIR);
-			// 					}
-			// 				}
-			// 			}
-			// 		}
-			// 		if (i > 5) {
-			// 			if (j > 5) {
-			// 				cancel();
-			// 			} else {
-			// 				i = -5;
-			// 				j++;
-			// 			}
-			// 		} else {
-			// 			i++;
-			// 		}
-			// 		Bukkit.getServer().broadcastMessage("DeChunked " + String.valueOf(i) + String.valueOf(j));
-			// 		}
-			// 		}.runTaskTimer(this, 2, 10);
-
-			//Bukkit.getServer().broadcastMessage("Done DeChunking");
-
-			// // Location loc = player.getLocation();
-			// // Chunk c = player.getWorld().getChunkAt(loc)
-			// // c.
-			// // .setRegion(0,0,0,1,0,1, Material.AIR);
-
-			// WorldCreator wc = new WorldCreator("test1");
-			// wc.generator(new ECG());
-			// wc.createWorld();
 		}
 
-	// controlls miner
-	if(cmd.getName().equalsIgnoreCase("mines"))
-
-	{
-		if (args.length == 0) {
-			return false;
-		}
-		if (args[0].equalsIgnoreCase("on")) {
-			mines = true;
-		} else if (args[0].equalsIgnoreCase("off")) {
-			this.mines = false;
-			return true;
-		} else if (args[0].equalsIgnoreCase("give")) {
-			if (this.mines == false) {
-				player.sendMessage("Automaticaly turning mines on");
-				this.mines = true;
+		if (cmd.getName().equalsIgnoreCase("antigravity")) {
+			if (args.length == 0) {
+				return false;
 			}
-			ItemStack boomHoe = new ItemStack(Material.GOLD_HOE);
-			ItemMeta boomHoeMeta = boomHoe.getItemMeta();
-			boomHoe.setDurability((short) 0);
-			boomHoeMeta.setDisplayName(ChatColor.GREEN + "" + ChatColor.BOLD + "Miner");
-			List<String> lore = new ArrayList<String>();
-			lore.add("");
-			lore.add(ChatColor.GOLD + "" + ChatColor.ITALIC + "Layes Mines");
-			boomHoeMeta.setLore(lore);
-			boomHoe.setItemMeta(boomHoeMeta);
-			player.getWorld().dropItem(player.getLocation(), boomHoe);
-			return true;
-		}
-	}
+			if (args[0].equalsIgnoreCase("on")) {
+				if (this.gravity_id != null) {
+					this.gravity_id.cancel();
+				}
+				this.gravity_id = new BukkitRunnable() {
+					World w = player.getWorld();
 
-	return true;
+					public void run() {
+						for (LivingEntity e : w.getLivingEntities()) {
+							e.setGravity(false);
+							if (Integer.parseInt(args[1]) != 0)
+								e.setVelocity(new Vector(0.0, (Integer.parseInt(args[1]) * 0.01), 0.0));
+						}
+					}
+				}.runTaskTimer(this, 2, 10);
+			}
+			if (args[0].equalsIgnoreCase("off")) {
+				World w = player.getWorld();
+				if (this.gravity_id != null) {
+					this.gravity_id.cancel();
+				}
+				for (LivingEntity e : w.getLivingEntities()) {
+					e.setGravity(true);
+				}
+			}
+		}
+	
+		if (cmd.getName().equalsIgnoreCase("dangerous_anaimals")) {
+			
+			if (args.length == 0) {
+				return false;
+			}
+			if (args[0].equalsIgnoreCase("on")) {
+
+				if (args[1].equalsIgnoreCase("neutral")) {
+					if(args[2].equalsIgnoreCase("easy"))
+						this.neutral = 1;
+					if(args[2].equalsIgnoreCase("medium"))
+						this.neutral = 2;
+					if(args[2].equalsIgnoreCase("hard"))
+						this.neutral = 3;
+					if(args[2].equalsIgnoreCase("insane"))
+						this.neutral = 3;	
+				}
+
+				if (args[1].equalsIgnoreCase("hostile")) {
+					this.hostile = true;
+
+					if (args[2].equalsIgnoreCase("easy")) {
+						if (this.hostile_id != null) {
+							this.hostile_id.cancel();
+						}
+						this.hostile_id = new BukkitRunnable() {
+							World w = player.getWorld();
+							LivingEntity m;
+
+							public void run() {
+								for (LivingEntity e : w.getLivingEntities()) {
+									if (e instanceof Animals) {
+										if (e.getPassengers().size() == 0) {
+											m = (LivingEntity) e.getWorld().spawnEntity(e.getLocation(),EntityType.HUSK);
+											e.addPassenger(m);
+											m.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 1000000000, 10));
+											m.setInvulnerable(true);
+										}
+									}
+								}
+							}
+						}.runTaskTimer(this, 2, 100);
+					}
+					
+					if (args[2].equalsIgnoreCase("medium")) {
+						if (this.hostile_id != null) {
+							this.hostile_id.cancel();
+						}
+						this.hostile_id = new BukkitRunnable() {
+							World w = player.getWorld();
+							LivingEntity m;
+
+							public void run() {
+								for (LivingEntity e : w.getLivingEntities()) {
+									if (e instanceof Animals) {
+										if (e.getPassengers().size() == 0) {
+											m = (LivingEntity) e.getWorld().spawnEntity(e.getLocation(),EntityType.CREEPER);
+											e.addPassenger(m);
+											m.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 1000000000, 10));
+											m.setInvulnerable(true);
+										}
+									}
+								}
+							}
+						}.runTaskTimer(this, 2, 100);
+					}
+					
+					if (args[2].equalsIgnoreCase("hard")) {
+						if (this.hostile_id != null) {
+							this.hostile_id.cancel();
+						}
+						this.hostile_id = new BukkitRunnable() {
+							World w = player.getWorld();
+							LivingEntity m;
+
+							public void run() {
+								for (LivingEntity e : w.getLivingEntities()) {
+									if (e instanceof Animals) {
+										if (e.getPassengers().size() == 0) {
+											m = (LivingEntity) e.getWorld().spawnEntity(e.getLocation(),EntityType.HUSK);
+											e.addPassenger(m);
+											m.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 1000000000, 10));
+											m.setInvulnerable(true);
+											m = (LivingEntity) e.getWorld().spawnEntity(e.getLocation(),EntityType.CREEPER);
+											e.addPassenger(m);
+											m.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 1000000000, 10));
+											m.setInvulnerable(true);
+										}
+									}
+								}
+							}
+						}.runTaskTimer(this, 2, 100);
+					}
+					
+					if (args[2].equalsIgnoreCase("insane")) {
+						if (this.hostile_id != null) {
+							this.hostile_id.cancel();
+						}
+						this.hostile_id = new BukkitRunnable() {
+							World w = player.getWorld();
+							LivingEntity m;
+
+							public void run() {
+								for (LivingEntity e : w.getLivingEntities()) {
+									if (e instanceof Animals) {
+										if (e.getPassengers().size() == 0) {
+											m = (LivingEntity) e.getWorld().spawnEntity(e.getLocation(),EntityType.HUSK);
+											e.addPassenger(m);
+											m.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 1000000000, 10));
+											m.setInvulnerable(true);
+											((Creature) m).setTarget(player);
+											m = (LivingEntity) e.getWorld().spawnEntity(e.getLocation(),EntityType.CREEPER);
+											e.addPassenger(m);
+											m.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 1000000000, 10));
+											m.setInvulnerable(true);
+											((Creature) m).setTarget(player);
+										}
+									}
+								}
+							}
+						}.runTaskTimer(this, 2, 100);
+					}
+				}
+			}
+			
+			if (args[0].equalsIgnoreCase("off")) {
+				this.hostile = false;
+				this.neutral = 0;
+				if (this.hostile_id != null) {
+					this.hostile_id.cancel();
+				}
+				
+				for (LivingEntity e : player.getWorld().getLivingEntities()) {
+					if (e.getPassengers().size() > 0) {
+						for (Entity e_ : e.getPassengers()) {
+							e_.remove();
+						}
+					}
+				}
+			}
+
+			// LivingEntity z = (LivingEntity) player.getWorld().spawnEntity(player.getLocation(), EntityType.HUSK);
+			// LivingEntity x = (LivingEntity) player.getWorld().spawnEntity(player.getLocation(), EntityType.CREEPER);
+			// LivingEntity c = (LivingEntity) player.getWorld().spawnEntity(player.getLocation(), EntityType.COW);
+			// c.addPassenger(z);
+			// c.addPassenger(x);
+			// // ((Creature) z).setTarget((LivingEntity) player);
+			// z.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 100, 10));
+			// z.setInvulnerable(true);		
+			// // z.setGlowing(true);
+			// this.hostile = true;
+		}
+
+		if (cmd.getName().equalsIgnoreCase("mines")) {
+			if (args.length == 0) {
+				return false;
+			}
+			if (args[0].equalsIgnoreCase("on")) {
+				mines = true;
+			} else if (args[0].equalsIgnoreCase("off")) {
+				this.mines = false;
+				return true;
+			} else if (args[0].equalsIgnoreCase("give")) {
+				if (this.mines == false) {
+					player.sendMessage("Automaticaly turning mines on");
+					this.mines = true;
+				}
+				ItemStack boomHoe = new ItemStack(Material.GOLD_HOE);
+				ItemMeta boomHoeMeta = boomHoe.getItemMeta();
+				boomHoe.setDurability((short) 0);
+				boomHoeMeta.setDisplayName(ChatColor.GREEN + "" + ChatColor.BOLD + "Miner");
+				List<String> lore = new ArrayList<String>();
+				lore.add("");
+				lore.add(ChatColor.GOLD + "" + ChatColor.ITALIC + "Layes Mines");
+				boomHoeMeta.setLore(lore);
+				boomHoe.setItemMeta(boomHoeMeta);
+				player.getWorld().dropItem(player.getLocation(), boomHoe);
+				return true;
+			}
+		}
+
+		return true;
 	}
 
 	@EventHandler
@@ -415,6 +560,7 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 		//Bukkit.getServer().broadcastMessage("Damage event called " + String.valueOf(this.damage_self_triggered));
 		//Bukkit.getServer().broadcastMessage(event.getEntity().getName());
 		//player.sendMessage(String.valueOf(event.getDamage()));
+
 	}
 
 	@EventHandler
@@ -425,21 +571,66 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 				event.setCancelled(true);
 			}
 		}
+
+		if (this.neutral > 0) {
+			if (event.getEntity() instanceof Animals) {
+				if (event.getDamager() instanceof Player) {
+					LivingEntity e = (LivingEntity) event.getEntity();
+					if (e.getPassengers().size() == 0) {
+						LivingEntity m;
+						if (this.neutral == 1) {
+							m = (LivingEntity) e.getWorld().spawnEntity(e.getLocation(), EntityType.HUSK);
+							e.addPassenger(m);
+							m.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 1000000000, 10));
+							m.setInvulnerable(true);
+						}
+						if (this.neutral == 2) {
+							m = (LivingEntity) e.getWorld().spawnEntity(e.getLocation(), EntityType.CREEPER);
+							e.addPassenger(m);
+							m.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 1000000000, 10));
+							m.setInvulnerable(true);
+						}
+						if (this.neutral == 3) {
+							m = (LivingEntity) e.getWorld().spawnEntity(e.getLocation(), EntityType.HUSK);
+							e.addPassenger(m);
+							m.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 1000000000, 10));
+							m.setInvulnerable(true);
+							m = (LivingEntity) e.getWorld().spawnEntity(e.getLocation(), EntityType.CREEPER);
+							e.addPassenger(m);
+							m.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 1000000000, 10));
+							m.setInvulnerable(true);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	@EventHandler
 	public void onPlayerDeath(PlayerDeathEvent event) {
 		Entity e = event.getEntity();
-		e.getWorld().strikeLightning(e.getLocation().add(0,4,0));
+		e.getWorld().strikeLightning(e.getLocation().add(0, 4, 0));
 	}
 
+	@EventHandler
+	public void onEntityDeath(EntityDeathEvent event) {
+		if (this.hostile || (this.neutral > 0)) {
+			Entity e = event.getEntity();
+			if (e instanceof LivingEntity) {
+				LivingEntity le = (LivingEntity) e;
+				if (le.getPassengers().size() > 0) {
+					for (Entity e_ : le.getPassengers()) {
+						e_.remove();
+					}
+				}
+			}
+		}
+	}
+	
+
 	// @EventHandler
-	// public void onChunkLoad(ChunkLoadEvent event) {
-	// 	chunks_loaded++;
-	// 	int x = event.getChunk().getX();
-	// 	int z = event.getChunk().getZ();
-	// 	Bukkit.getServer().broadcastMessage("Chunk Loaded " + String.valueOf(x) + " " + String.valueOf(z));
-	// 	deChunks_Queue.add(x);
-	// 	deChunks_Queue.add(z);
+	// public void onPrime(ExplosionPrimeEvent event) {
+	// 	event.setRadius(64);
+	// 	event.setFire(true);
 	// }
 }
