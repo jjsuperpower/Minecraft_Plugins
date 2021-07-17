@@ -60,6 +60,24 @@ commands:
         permissions:
             default: op
 
+    antigravity_game:
+        usage: "Usage: /<command> [ on | off ]"
+        description: "Randomly flips gravity"
+        permissions:
+            default: op
+
+    fart_tnt:
+        usage: "Usage: /<command> [ on | off ]"
+        description: "Spawns tnt when you sneak"
+        permissions:
+            default: op
+
+    sky_items:
+        usage: "Usage: /<command> [ on | off ]"
+        description: "Drops item from sky to each player"
+        permissions:
+            default: op
+
     # reset_world:
     #     usage: "Usage: /<command>"
     #     descritpion: "RESETS THE WORLD"

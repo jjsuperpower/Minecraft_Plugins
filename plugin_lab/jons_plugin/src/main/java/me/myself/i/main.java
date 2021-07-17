@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -23,6 +24,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -53,9 +55,14 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 	boolean pvp = true;
 	boolean dechunk = false;
 	boolean hostile = false;
+	boolean fart_tnt = false;
 	BukkitTask hostile_id;
 	int neutral = 0;
 	BukkitTask gravity_id;
+	BukkitTask gravity_game_id;
+	BukkitTask sky_items_id;
+	BukkitTask sty_items_game_id;
+
 
 	int DECHUNK_RADIUS = 1000;
 	int PLAYER_DECHUNK_RADIUS = 4;
@@ -96,6 +103,10 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 			player.getWorld().strikeLightning(player.getTargetBlock((Set<Material>) null, 200).getLocation().add(0,3,0));
 			// Bukkit.getServer().broadcastMessage("general message triggered");
 			// player.sendMessage("you used a custom command");
+			// player.setGravity(false);
+			// for (Entity e : w.getEntities()) {
+			// 	e.setGravity(false);
+			// }
 		}
 
 		// switch for boom_arrows
@@ -169,6 +180,47 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 			}
 		}
 
+		if (cmd.getName().equalsIgnoreCase("fart_tnt")) {
+			if (args.length == 0) {
+				return false;
+			}
+			if (args[0].equalsIgnoreCase("on")) {
+				this.fart_tnt = true;
+				return true;
+			}
+			if (args[0].equalsIgnoreCase("off")) {
+				this.fart_tnt = false;
+				return true;
+			}
+		}
+
+		if (cmd.getName().equalsIgnoreCase("sky_items")) {
+			if (args.length == 0) {
+				return false;
+			}
+			if (args[0].equalsIgnoreCase("on")) {
+				if (this.sky_items_id != null) {
+					this.sky_items_id.cancel();
+				}
+				this.sky_items_id = new BukkitRunnable() {
+					public void run() {
+						for (Player a_player : Bukkit.getOnlinePlayers()) {
+							ItemStack rand_item = new ItemStack(Material.values()[new Random().nextInt(Material.values().length)]);
+							int rand_int = ThreadLocalRandom.current().nextInt(32, 128);
+							for(int i = rand_int; i < 128; i++)	{
+								a_player.getWorld().dropItem(a_player.getLocation().add(0, 30, 0), rand_item);
+							}
+						}
+					}
+				}.runTaskTimer(this, 200, 1200);
+			}
+			if (args[0].equalsIgnoreCase("off")) {
+				if (this.sky_items_id != null) {
+					this.sky_items_id.cancel();
+				}
+			}
+		}
+
 		if (cmd.getName().equalsIgnoreCase("dechunk")) {
 
 			//checks chunks around player
@@ -180,7 +232,7 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 						Chunk c = player.getLocation().getChunk();
 						int x = c.getX();
 						int z = c.getZ();
-						for (int i = -1*PLAYER_DECHUNK_RADIUS; i < PLAYER_DECHUNK_RADIUS + 1; i++) {
+						for (int i = -1 * PLAYER_DECHUNK_RADIUS; i < PLAYER_DECHUNK_RADIUS + 1; i++) {
 							for (int j = -1 * PLAYER_DECHUNK_RADIUS; j < PLAYER_DECHUNK_RADIUS + 1; j++) {
 								//Bukkit.getServer().broadcastMessage("Checking  " + String.valueOf(x + i) + " " + String.valueOf(z + i));
 								if (deChunked[x + i + DECHUNK_RADIUS][z + j + DECHUNK_RADIUS] == false) {
@@ -189,7 +241,7 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 								}
 							}
 						}
-					}	
+					}
 				}
 			}.runTaskTimer(this, 5, 40);
 
@@ -200,7 +252,7 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 				Chunk c;
 
 				public void run() {
-					
+
 					c = deChunks_Queue.poll();
 					if ((c != null) && c.isLoaded()) {
 						rand_numb = ThreadLocalRandom.current().nextInt(1, 100 + 1);
@@ -212,12 +264,10 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 										for (int y = 0; y < 128; y++) {
 											m = c.getBlock(x, y, z).getType();
 											//using OR is faster than AND
-											if ((m == Material.OBSIDIAN)
-													|| (m == Material.ENDER_PORTAL_FRAME)
-													|| (m == Material.ENDER_PORTAL)
-													|| (m == Material.MOB_SPAWNER)
-													|| (m == Material.NETHER_BRICK)
-											);
+											if ((m == Material.OBSIDIAN) || (m == Material.ENDER_PORTAL_FRAME)
+													|| (m == Material.ENDER_PORTAL) || (m == Material.MOB_SPAWNER)
+													|| (m == Material.NETHER_BRICK))
+												;
 											else {
 												c.getBlock(x, y, z).setType(Material.AIR);
 											}
@@ -225,12 +275,71 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 									}
 								}
 								//Bukkit.getServer().broadcastMessage(
-										//"DeChunked " + String.valueOf(c.getX()) + " " + String.valueOf(c.getZ()));
+								//"DeChunked " + String.valueOf(c.getX()) + " " + String.valueOf(c.getZ()));
 							}
 						}
 					}
 				}
 			}.runTaskTimer(this, 1, 15);
+		}
+		
+		if (cmd.getName().equalsIgnoreCase("antigravity_game")) {
+			if (args.length == 0) {
+				return false;
+			}
+			if (args[0].equalsIgnoreCase("on")) {
+				Bukkit.getServer().broadcastMessage("starting game");
+				if (this.gravity_game_id != null) {
+					this.gravity_game_id.cancel();
+				}
+				this.gravity_game_id = new BukkitRunnable() {
+					World w = player.getWorld();
+					int rand_int = ThreadLocalRandom.current().nextInt(120, 360);
+					int counter = 0;
+					boolean gravity = true;
+
+	public void run() {
+						if (gravity && (counter < rand_int)) {
+							counter += 1;
+
+						} else if (gravity && (counter >= rand_int)) {
+							counter = 0;
+							gravity = false;
+							rand_int = ThreadLocalRandom.current().nextInt(0, 60);
+							Bukkit.getServer().broadcastMessage("Gravity Flipped");
+						}
+
+						if (!gravity && (counter < rand_int)) {
+							counter += 1;
+
+							for (Entity e : w.getEntities()) {
+								e.setGravity(false);
+								e.setVelocity(e.getVelocity().add(new Vector(0.0, 0.2, 0.0)));
+							}
+
+						} else if (!gravity && (counter >= rand_int)) {
+							counter = 0;
+							gravity = true;
+
+							for (Entity e : w.getEntities()) {
+								e.setGravity(true);
+							}
+
+							rand_int = ThreadLocalRandom.current().nextInt(120, 360);
+							Bukkit.getServer().broadcastMessage("Gravity Restored");
+						}
+					}
+				}.runTaskTimer(this, 3, 10);
+			}
+			if (args[0].equalsIgnoreCase("off")) {
+				World w = player.getWorld();
+				if (this.gravity_game_id != null) {
+					this.gravity_game_id.cancel();
+				}
+				for (Player p : w.getPlayers()) {
+					p.setGravity(true);
+				}
+			}
 		}
 
 		if (cmd.getName().equalsIgnoreCase("antigravity")) {
@@ -243,12 +352,13 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 				}
 				this.gravity_id = new BukkitRunnable() {
 					World w = player.getWorld();
+					int arg = Integer.parseInt(args[1]);
 
 					public void run() {
-						for (LivingEntity e : w.getLivingEntities()) {
+						for (Entity e : w.getEntities()) {
 							e.setGravity(false);
-							if (Integer.parseInt(args[1]) != 0)
-								e.setVelocity(new Vector(0.0, (Integer.parseInt(args[1]) * 0.01), 0.0));
+							if (arg != 0)
+								e.setVelocity(new Vector(0.0, arg * 0.01, 0.0));
 						}
 					}
 				}.runTaskTimer(this, 2, 10);
@@ -258,7 +368,7 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 				if (this.gravity_id != null) {
 					this.gravity_id.cancel();
 				}
-				for (LivingEntity e : w.getLivingEntities()) {
+				for (Entity e : w.getEntities()) {
 					e.setGravity(true);
 				}
 			}
@@ -293,7 +403,7 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 							World w = player.getWorld();
 							LivingEntity m;
 
-							public void run() {
+	public void run() {
 								for (LivingEntity e : w.getLivingEntities()) {
 									if (e instanceof Animals) {
 										if (e.getPassengers().size() == 0) {
@@ -539,6 +649,16 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 				event.setCancelled(true);
 			}
 		}
+
+		// spawn tnt when sneaking
+		if (this.fart_tnt) {
+			if (event.getPlayer().isSneaking()) {
+				Entity tnt = event.getPlayer().getWorld().spawn(event.getPlayer().getLocation(), TNTPrimed.class);
+				((TNTPrimed) tnt).setFuseTicks(100);
+
+			}
+		}
+
 	}
 
 	@EventHandler
@@ -609,7 +729,7 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 	@EventHandler
 	public void onPlayerDeath(PlayerDeathEvent event) {
 		Entity e = event.getEntity();
-		e.getWorld().strikeLightning(e.getLocation().add(0, 4, 0));
+		e.getWorld().strikeLightning(e.getLocation().add(0, 10, 0));
 	}
 
 	@EventHandler
