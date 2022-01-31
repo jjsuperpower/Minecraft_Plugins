@@ -1,5 +1,7 @@
 package me.myself.i;
 
+import me.myself.i.commands.*;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,7 +33,6 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.ExplosionPrimeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -52,7 +53,6 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 	boolean damage_self_triggered = false; // stops recursive damage which would be BAD
 	boolean shared_damage_on = false;
 	boolean pits_on = false;
-	boolean freeze = false;
 	boolean pvp = true;
 	boolean dechunk = false;
 	boolean hostile = false;
@@ -65,6 +65,11 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 	BukkitTask sky_items_id;
 	BukkitTask sty_items_game_id;
 
+	BoomArrows boomArrows;
+	SharedDamage sharedDamage;
+	Pits pits;
+	Freeze freeze;
+
 
 	int DECHUNK_RADIUS = 1000;
 	int PLAYER_DECHUNK_RADIUS = 4;
@@ -76,10 +81,13 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 
 	@Override
 	public void onEnable() {
-		System.out.println("test1 enabled");
-		// this.getCommand("test1").setExecutor((CommandExecutor)new commands());
+		System.out.println("Jons_Plugin enabled");
 		Bukkit.getServer().getPluginManager().registerEvents(this, this);
-		Bukkit.getServer().broadcastMessage("test1 is enabled");
+
+		boomArrows = new BoomArrows(this);
+		sharedDamage = new SharedDamage(this);
+		pits = new Pits(this);
+		freeze = new Freeze(this);
 
 		//initialize array the keeps track whick chunks have been deleted
 		for (int i = 0; i < 2 * DECHUNK_RADIUS; i++) {
@@ -98,116 +106,40 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		Player player = (Player) sender;
 
-		if (cmd.getName().equalsIgnoreCase("strike")) { // If the player typed /basic then do the following, note: If
-														// you only registered this executor for one command, you don't
-														// need this
-														// doSomething
+		if (cmd.getName().equalsIgnoreCase("strike")) { 
+
 			player.getWorld().strikeLightning(player.getTargetBlock((Set<Material>) null, 200).getLocation().add(0,3,0));
-			// Bukkit.getServer().broadcastMessage("general message triggered");
-			// player.sendMessage("you used a custom command");
-			// player.setGravity(false);
-			// for (Entity e : w.getEntities()) {
-			// 	e.setGravity(false);
-			// }
+			Strike.looking_at(player);
+
 		}
 
 		// switch for boom_arrows
 		if (cmd.getName().equalsIgnoreCase("boom_arrows")) {
-			if (args.length == 0) {
-				return false;
-			}
-			if (args[0].equalsIgnoreCase("on")) {
-				this.boom_arrows = true;
-				return true;
-			}
-			if (args[0].equalsIgnoreCase("off")) {
-				this.boom_arrows = false;
-				return true;
-			}
+			return boomArrows.set(args);
 		}
 
 		if (cmd.getName().equalsIgnoreCase("shared_damage")) {
-			if (args.length == 0) {
-				return false;
-			}
-			if (args[0].equalsIgnoreCase("on")) {
-				this.shared_damage_on = true;
-				return true;
-			}
-			if (args[0].equalsIgnoreCase("off")) {
-				this.shared_damage_on = false;
-				return true;
-			}
+			return sharedDamage.set(args);
 		}
 
 		if (cmd.getName().equalsIgnoreCase("pits")) {
-			if (args.length == 0) {
-				return false;
-			}
-			if (args[0].equalsIgnoreCase("on")) {
-				this.pits_on = true;
-				return true;
-			}
-			if (args[0].equalsIgnoreCase("off")) {
-				this.pits_on = false;
-				return true;
-			}
+			return pits.set(args);
 		}
 
 		if (cmd.getName().equalsIgnoreCase("freeze")) {
-			if (args.length == 0) {
-				return false;
-			}
-			if (args[0].equalsIgnoreCase("on")) {
-				this.freeze = true;
-				return true;
-			}
-			if (args[0].equalsIgnoreCase("off")) {
-				this.freeze = false;
-				return true;
-			}
+			return freeze.set(args);
 		}
 
 		if (cmd.getName().equalsIgnoreCase("pvp")) {
-			if (args.length == 0) {
-				return false;
-			}
-			if (args[0].equalsIgnoreCase("on")) {
-				this.pvp = true;
-				return true;
-			}
-			if (args[0].equalsIgnoreCase("off")) {
-				this.pvp = false;
-				return true;
-			}
+			
 		}
 
 		if (cmd.getName().equalsIgnoreCase("big_boom")) {
-			if (args.length == 0) {
-				return false;
-			}
-			if (args[0].equalsIgnoreCase("on")) {
-				this.big_boom = true;
-				return true;
-			}
-			if (args[0].equalsIgnoreCase("off")) {
-				this.big_boom = false;
-				return true;
-			}
+			
 		}
 
 		if (cmd.getName().equalsIgnoreCase("fart_tnt")) {
-			if (args.length == 0) {
-				return false;
-			}
-			if (args[0].equalsIgnoreCase("on")) {
-				this.fart_tnt = true;
-				return true;
-			}
-			if (args[0].equalsIgnoreCase("off")) {
-				this.fart_tnt = false;
-				return true;
-			}
+
 		}
 
 		if (cmd.getName().equalsIgnoreCase("sky_items")) {
@@ -613,22 +545,6 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 		player.sendMessage("Hello Darkness my old friend");
 	}
 
-	//for boom arrows
-	@EventHandler
-	public void OnProjectileHitEvent(ProjectileHitEvent event) {
-		//Entity hitEntity = event.getHitEntity();
-		if (this.boom_arrows) {
-			Block block = event.getHitBlock();
-			if (this.boom_arrows) {
-				if (block != null) {
-					block.getWorld().createExplosion(block.getLocation(), (float) 1.0);
-				} else {
-					Entity entity = event.getHitEntity();
-					entity.getWorld().createExplosion(entity.getLocation(), (float) 1.0);
-				}
-			}
-		}
-	}
 
 	@EventHandler
 	public void onInteract(PlayerInteractEvent event) {
