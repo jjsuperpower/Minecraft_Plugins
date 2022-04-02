@@ -88,3 +88,65 @@ get_rlcraft_url()   {
         ;;
     esac
 }
+
+check_versions() {
+    # check if RL_CRAFT_URL is empty
+    if [ -z "$RL_CRAFT_URL" ]; then
+        echo "Mod pack is not available for this version of RL-Craft" 
+        echo "Supported versions are: 2.9, 2.8.2, 2.8.1, 2.8, 2.7, 2.6.3, 2.5, 2.4, 2.3, 2.2, 2.1, 1.4, 1.3, 1.2, 1.1"
+        exit 1
+    fi
+
+    #check if MC_FORGE is empty
+    if [ -z "$MC_FORGE" ]; then
+    echo "Was not able to find the correct mc forge version"
+    exit 1
+    fi
+}
+
+download_rl_craft() {
+    cd ${MC_INST_DIR}
+
+    if [ -d "mods" ]; then
+        echo "Removing old mods"
+        rm -rf mods
+    fi
+    
+    echo "Downloading RLCraft"
+    wget ${RL_CRAFT_URL}
+    echo "Unzipping RLCraft"
+    unzip RLCraft*.zip
+    echo "Removing RLCraft zip"
+    rm RLCraft*.zip
+}
+
+    # RUN wget ${RL_CRAFT}
+    # RUN unzip RLCraft*.zip
+    # RUN rm RLCraft*.zip
+
+    # RUN wget ${RL_CRAFT_MODS}
+    # RUN unzip RLCraft*.zip
+    # RUN rm RLCraft*.zip
+
+    # RUN wget ${MC_FORGE}
+    # RUN mv *.jar install.jar
+    # RUN echo eula=true > eula.txt
+
+    # RUN java -jar install.jar --installServer
+    # RUN rm install*
+    # RUN mv forge*.jar server.jar
+
+download_forge() {
+    if [ -e "server.jar" ]; then
+        echo "Removing old forge"
+        rm server.jar
+    fi
+    echo "Downloading Minecraft Forge"
+    wget ${MC_FORGE}
+    mv forge*.jar install.jar
+    echo "Installing Minecraft Forge"
+    java -jar install.jar --installServer
+    mv forge*.jar server.jar
+    echo "Removing Minecraft Forge installer"
+    rm install.jar
+}
