@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # get url for rl-craft install
 get_rlcraft_url()   {
     local rlcraft_base_url="https://media.forgecdn.net/files"
@@ -118,6 +116,9 @@ download_rl_craft() {
     unzip RLCraft*.zip
     echo "Removing RLCraft zip"
     rm RLCraft*.zip
+
+    # change back to previous directory
+    cd -
 }
 
     # RUN wget ${RL_CRAFT}
@@ -137,6 +138,8 @@ download_rl_craft() {
     # RUN mv forge*.jar server.jar
 
 download_forge() {
+    cd ${MC_INST_DIR}
+
     if [ -e "server.jar" ]; then
         echo "Removing old forge"
         rm server.jar
@@ -149,4 +152,7 @@ download_forge() {
     mv forge*.jar server.jar
     echo "Removing Minecraft Forge installer"
     rm install.jar
+
+    # change back to previous directory
+    cd -
 }

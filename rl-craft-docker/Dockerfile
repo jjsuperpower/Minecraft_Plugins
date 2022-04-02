@@ -31,6 +31,4 @@ RUN chmod +x init.sh
 
 EXPOSE 25565/tcp
 
-RUN ls -l
-
-CMD ["bash /init.sh"]
+CMD ["/bin/bash"]

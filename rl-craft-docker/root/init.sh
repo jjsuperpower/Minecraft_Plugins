@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source init.d/mc-init.sh
+source /init.d/mc-utils.sh
 
 #check if RLC_VERSION is empty
 if [ -z "${RLC_VERSION}" ]; then
@@ -14,3 +14,6 @@ check_versions
 
 download_rl_craft
 download_forge
+
+echo eula=${EULA} > ${MC_INST_DIR}/eula.txt
+
