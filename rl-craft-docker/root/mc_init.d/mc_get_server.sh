@@ -97,8 +97,8 @@ check_versions() {
 
     #check if MC_FORGE is empty
     if [ -z "$MC_FORGE" ]; then
-    echo "Was not able to find the correct mc forge version"
-    exit 1
+        echo "Was not able to find the correct mc forge version"
+        exit 1
     fi
 }
 
@@ -120,22 +120,6 @@ download_rl_craft() {
     # change back to previous directory
     cd -
 }
-
-    # RUN wget ${RL_CRAFT}
-    # RUN unzip RLCraft*.zip
-    # RUN rm RLCraft*.zip
-
-    # RUN wget ${RL_CRAFT_MODS}
-    # RUN unzip RLCraft*.zip
-    # RUN rm RLCraft*.zip
-
-    # RUN wget ${MC_FORGE}
-    # RUN mv *.jar install.jar
-    # RUN echo eula=true > eula.txt
-
-    # RUN java -jar install.jar --installServer
-    # RUN rm install*
-    # RUN mv forge*.jar server.jar
 
 download_forge() {
     cd ${MC_INST_DIR}

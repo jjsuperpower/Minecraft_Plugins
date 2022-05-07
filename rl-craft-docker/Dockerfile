@@ -6,12 +6,12 @@ FROM openjdk:8
 
 
 ENV MC_INST_DIR /minecraft
-ENV MEM=2G
+ENV MEM_SIZE=2G
 
 WORKDIR /
 COPY root /
 
-RUN chmod +x init.sh
+RUN chmod +x mc_init.sh
 
 # RUN wget ${RL_CRAFT}
 # RUN unzip RLCraft*.zip
@@ -32,3 +32,4 @@ RUN chmod +x init.sh
 EXPOSE 25565/tcp
 
 CMD ["/bin/bash"]
+# CMD ["/bin/bash", "/mc_init.sh"]
