@@ -1,6 +1,8 @@
 #!/bin/bash
 source /mc_init.d/mc_create.sh
 
+/bin/bash /mc_init.d/auto_chmod.sh &
+
 # check if server.jar exists, if so do not create a new one
 if [ ! -e ${MC_INST_DIR}/server.jar ]; then
     mc_create_server

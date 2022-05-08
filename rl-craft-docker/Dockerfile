@@ -9,6 +9,7 @@ COPY root /
 
 RUN chmod +x /mc_init.sh
 RUN chmod +x /mc_init.d/auto_restart.sh
+RUN chmod +x /mc_init.d/auto_chmod.sh
 
 EXPOSE 25565/tcp
 
