@@ -25,11 +25,11 @@ class Collector:
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument("--disable-logging")
         options.add_argument("--log-level=OFF")
-        options.add_argument("--headless")
-        driver = webdriver.Chrome('./chromedriver',options=options)
+        #options.add_argument("--headless")    #This appears to be causing issues for curseForge
+        driver = webdriver.Chrome(options=options)
 
-        for addr in self.addresses:
-            driver.get(addr)    #Load webpage
+        for i in range(len(self.addresses)):
+            driver.get(self.addresses[i])    #Load webpage
 
             # Wait for page to load fully
             await self.isLoaded(driver)
@@ -39,22 +39,20 @@ class Collector:
 
             print(fileInfo)    #For debugging
 
-            #Keep everything before newline character, discard rest.
-            # fileInfo =
-
-            #Replace spaces with '+'
-            # fileInfo = 
+            #Replace spaces in fileInfo with '+'
+            fileInfo = fileInfo.replace(' ', '+')
 
             #Create correct link
             link = "https://media.forgecdn.net/files/"
-            link += FIRSTFOURID + "/"
-            link += LASTTHREEID + "/"
+            link += (self.fileId[i])[0:4] + "/"
+            link += (self.fileId[i])[4:7] + "/"
             link += fileInfo
 
             #Append corrected link to links List
             self.links.append(link)
         
         #Return the list of links
+        print(self.links)
         return self.links
 
 c = Collector(['https://www.curseforge.com/minecraft/mc-mods/mana-and-artifice/files/3651868'], ['3651868'])
