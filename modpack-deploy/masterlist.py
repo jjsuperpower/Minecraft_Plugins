@@ -1,4 +1,6 @@
 import requests
+import json
+from time import sleep
 
 class Curseforge_api():
     def __init__(self, api_key):
@@ -29,6 +31,16 @@ class Curseforge_api():
             raise Exception(str(response.status_code))
         return response.json()
 
+    def get_mods_modids_json(self, mod_ids):
+        url = self.base_url + "v1/mods"
+        data = {"modIds": mod_ids}
+
+        response = requests.post(url, data=str(data), headers=self.headers)
+
+        if response.status_code != 200:
+            raise Exception(str(response.status_code))
+        return response.json()
+
 
 with open('token.txt', 'r') as f:
     token = f.read().strip()
@@ -37,10 +49,37 @@ with open('token.txt', 'r') as f:
 api = Curseforge_api(token)
 
 # mod_json = api.get_mod_info(406360)
-mod_json = api.get_mods_fileids_json([3651868, 3723162, 3559400])
+
+mods_list = {'data': []}
+l2 = []
 
 import pyjsonviewer
-pyjsonviewer.view_data(json_data=mod_json)
+
+for i in range(0, 1000000 - 1000, 1000):
+    l2 = []
+    for j in range(0, 1000):
+        l2.append(i + j)
+
+    mod_json = api.get_mods_modids_json(l2)
+
+    print(f"Mods Found i = {i}: {len(mod_json['data'])}")
+    mods_list['data'] += mod_json['data']
+    sleep(3)
+
+print(f"Total size: {len(mods_list['data'])}")
+
+print(f"Saving to file...")
+with open('masterlist.json', 'w') as f:
+    json.dump(mods_list, f, indent=4)
+print(f"Done!")
+
+
+# mod_json = api.get_mods_fileids_json([3651868, 3723162, 3559400])
+# mod_json = api.get_mods_modids_json([406360, 238222, 363703])
+
+
+# import pyjsonviewer
+# pyjsonviewer.view_data(json_data=mod_json)
 
 
 
