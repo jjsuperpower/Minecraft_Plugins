@@ -26,7 +26,7 @@ class Collector:
         options.add_argument("--disable-logging")
         options.add_argument("--log-level=OFF")
         #options.add_argument("--headless")    #This appears to be causing issues for curseForge
-        driver = webdriver.Chrome(options=options)
+        driver = webdriver.Chrome('./chromedriver', options=options)
 
         for i in range(len(self.addresses)):
             driver.get(self.addresses[i])    #Load webpage
@@ -55,6 +55,6 @@ class Collector:
         print(self.links)
         return self.links
 
-c = Collector(['https://www.curseforge.com/minecraft/mc-mods/mana-and-artifice/files/3651868'], ['3651868'])
+c = Collector(['https://www.curseforge.com/minecraft/mc-mods/mana-and-artifice/files/3651868', 'https://www.curseforge.com/minecraft/mc-mods/jei/files/3723162'], ['3651868', '3723162'])
 
 asyncio.run(c.scrapeLinks())
