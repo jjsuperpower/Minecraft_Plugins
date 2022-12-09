@@ -13,5 +13,4 @@ RUN chmod +x /mc_init.d/auto_chmod.sh
 
 EXPOSE 25565/tcp
 
-CMD ["/bin/bash"]
-# CMD ["/bin/bash", "/mc_init.sh"]
+CMD ["/bin/bash", "/mc_init.sh"]
