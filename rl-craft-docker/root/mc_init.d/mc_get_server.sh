@@ -5,6 +5,11 @@ get_rlcraft_url()   {
     local forge11_2="https://maven.minecraftforge.net/net/minecraftforge/forge/1.11.2-13.20.1.2588/forge-1.11.2-13.20.1.2588-installer.jar"
 
     case $1 in 
+        "2.9.1c")
+            RL_CRAFT_URL="${rlcraft_base_url}/3655/676/RLCraft+Server+Pack+1.12.2+-+Release+v2.9.1c.zip"
+            MC_FORGE=${forge12_2}
+        ;;
+
         "2.9")
             RL_CRAFT_URL="${rlcraft_base_url}/3575/916/RLCraft+Server+Pack+1.12.2+-+Release+v2.9.zip"
             MC_FORGE=${forge12_2}
