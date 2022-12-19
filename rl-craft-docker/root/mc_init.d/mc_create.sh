@@ -16,5 +16,10 @@ mc_create_server() {
     download_rl_craft
     download_forge
 
+    if [ ${REPLACE_CONFIG} ]; then
+        echo 'Replacing server.properties with template file'
+        mv /server.properties.template ${MC_INST_DIR}/server.properties
+    fi
+
     echo eula=${EULA} > ${MC_INST_DIR}/eula.txt
 }
