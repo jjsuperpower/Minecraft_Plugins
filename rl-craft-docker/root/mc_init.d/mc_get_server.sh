@@ -96,7 +96,7 @@ check_versions() {
     # check if RL_CRAFT_URL is empty
     if [ -z "$RL_CRAFT_URL" ]; then
         echo "Mod pack is not available for this version of RL-Craft" 
-        echo "Supported versions are: 2.9, 2.8.2, 2.8.1, 2.8, 2.7, 2.6.3, 2.5, 2.4, 2.3, 2.2, 2.1, 1.4, 1.3, 1.2, 1.1"
+        echo "Supported versions are: 2.9.1c, 2.9, 2.8.2, 2.8.1, 2.8, 2.7, 2.6.3, 2.5, 2.4, 2.3, 2.2, 2.1, 1.4, 1.3, 1.2, 1.1"
         exit 1
     fi
 
