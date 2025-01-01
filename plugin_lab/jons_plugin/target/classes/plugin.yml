@@ -1,19 +1,19 @@
 main: me.myself.i.main
 name: jons_plugin
 version: 0.0.1
-descritpion: This is my custom coded plugin
+description: This is my custom coded plugin
 load:
 
 commands:
     strike:
     mines:
         usage: "Usage: /<command> [ on | off | give ]"
-        descritpion: "Controls weather mines are on, p.s don't stand on tnt if this is on"
+        description: "Controls weather mines are on, p.s don't stand on tnt if this is on"
         permission: op
     
     boom_arrows:
         usage: "Usage: /<command> [ on | off | give ]"
-        descritpion: "Enables explosive arrows"
+        description: "Enables explosive arrows"
         permission: op
 
     shared_damage:
@@ -23,7 +23,7 @@ commands:
 
     pits:
         usage: "Usage: /<command> [ on | off ]"
-        description: "Turns on pits for all players - be carefull were you step"
+        description: "Turns on pits for all players - be careful were you step"
         permission: op
 
 
@@ -42,13 +42,13 @@ commands:
         description: "Unloads Chunks"
         permission: op
 
-    dangerous_anaimals:
+    dangerous_animals:
         usage: "Usage: /<command> [ on | off ] [ neutral | hostile ] [ easy | medium | hard | insane ]"
         description: "Unloads Chunks"
         permission: op
     
     antigravity:
-        usage: "Usage: /<command> [ on | off ] [ ammount ]"
+        usage: "Usage: /<command> [ on | off ] [ amount ]"
         description: "Turns off gravity"
         permission: op
 
@@ -78,6 +78,6 @@ permissions:
 
     # reset_world:
     #     usage: "Usage: /<command>"
-    #     descritpion: "RESETS THE WORLD"
+    #     description: "RESETS THE WORLD"
     #     permissions:
     #         default: op
