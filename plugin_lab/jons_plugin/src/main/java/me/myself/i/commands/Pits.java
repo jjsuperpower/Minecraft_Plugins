@@ -18,7 +18,7 @@ public class Pits implements Listener {
         this.p = p;
     }
 
-    public boolean set(String[] args) {
+    public boolean cmd(String[] args) {
         if (args.length == 0) {
             return false;
         }

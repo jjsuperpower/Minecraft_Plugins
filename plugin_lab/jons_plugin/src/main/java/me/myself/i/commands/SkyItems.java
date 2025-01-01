@@ -7,16 +7,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.event.Listener;
 
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
-
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Entity;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitRunnable;
 
 public class SkyItems implements Listener {
     Boolean name_on = false;
@@ -27,7 +21,7 @@ public class SkyItems implements Listener {
         this.p = p;
     }
 
-    public boolean set(String[] args) {
+    public boolean cmd(String[] args) {
         if (args.length == 0) {
             return false;
         }

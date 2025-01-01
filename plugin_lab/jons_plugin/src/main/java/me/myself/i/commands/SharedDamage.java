@@ -16,7 +16,7 @@ public class SharedDamage implements Listener {
         Bukkit.getServer().getPluginManager().registerEvents(this, p);
     }
 
-    public Boolean set(String[] args)   {
+    public Boolean cmd(String[] args)   {
         if (args.length == 0) {
             return false;
         }

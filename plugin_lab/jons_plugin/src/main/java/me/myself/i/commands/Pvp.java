@@ -14,7 +14,7 @@ public class Pvp implements Listener {
         Bukkit.getServer().getPluginManager().registerEvents(this, p);
     }
 
-    public boolean set(String[] args) {
+    public boolean cmd(String[] args) {
         if (args.length == 0) {
             return false;
         }

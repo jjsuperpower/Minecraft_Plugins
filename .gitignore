@@ -1,2 +1,5 @@
 .vscode
 *.jar
+*.class
+**.class
+testing_env/

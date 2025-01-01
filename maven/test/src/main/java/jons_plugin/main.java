@@ -164,7 +164,7 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 		if(this.mines)	{
 			Player player = event.getPlayer();
 			// player.sendMessage("boomHoe event triggered");
-			ItemStack item = player.getInventory().getItemInHand();
+			ItemStack item = player.getInventory().getItemInMainHand();
 			if(item.getItemMeta().getDisplayName().contains("Miner"))	{
 				if(item.getItemMeta().hasLore())	{
 					if(item.getDurability() < 20)	{
