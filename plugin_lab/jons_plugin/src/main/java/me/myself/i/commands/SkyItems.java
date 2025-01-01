@@ -1,6 +1,17 @@
 package me.myself.i.commands;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
+
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
+
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -9,7 +20,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class SkyItems implements Listener {
     Boolean name_on = false;
-    BukkitRunnable sky_items_id;
+    BukkitTask sky_items_id;
     Plugin p;
 
     public SkyItems(Plugin p) {
@@ -35,18 +46,18 @@ public class SkyItems implements Listener {
                     }
                     Bukkit.getServer().broadcastMessage("Dropping items!");
                 }
-            }.runTaskTimer(p, 200, 1200);
+            }.runTaskTimer(this.p,  200,  1200);
+
+            return true;
         }
         if (args[0].equalsIgnoreCase("off")) {
             if (this.sky_items_id != null) {
                 this.sky_items_id.cancel();
             }
+            return true;
         }
+
         return false;
     }
-
-
-    @EventHandler
-
 }
 

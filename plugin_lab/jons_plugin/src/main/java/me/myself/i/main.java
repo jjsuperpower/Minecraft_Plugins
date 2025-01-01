@@ -69,6 +69,7 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 	SharedDamage sharedDamage;
 	Pits pits;
 	Freeze freeze;
+	SkyItems skyItems;
 
 
 	int DECHUNK_RADIUS = 1000;
@@ -88,6 +89,7 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 		sharedDamage = new SharedDamage(this);
 		pits = new Pits(this);
 		freeze = new Freeze(this);
+		skyItems = new SkyItems(this);
 
 		//initialize array the keeps track whick chunks have been deleted
 		for (int i = 0; i < 2 * DECHUNK_RADIUS; i++) {
@@ -143,31 +145,7 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 		}
 
 		if (cmd.getName().equalsIgnoreCase("sky_items")) {
-			if (args.length == 0) {
-				return false;
-			}
-			if (args[0].equalsIgnoreCase("on")) {
-				if (this.sky_items_id != null) {
-					this.sky_items_id.cancel();
-				}
-				this.sky_items_id = new BukkitRunnable() {
-					public void run() {
-						for (Player a_player : Bukkit.getOnlinePlayers()) {
-							ItemStack rand_item = new ItemStack(Material.values()[new Random().nextInt(Material.values().length)]);
-							int rand_int = ThreadLocalRandom.current().nextInt(32, 128);
-							for(int i = rand_int; i < 128; i++)	{
-								a_player.getWorld().dropItem(a_player.getLocation().add(0, 30, 0), rand_item);
-							}
-						}
-						Bukkit.getServer().broadcastMessage("Dropping items!");
-					}
-				}.runTaskTimer(this, 200, 1200);
-			}
-			if (args[0].equalsIgnoreCase("off")) {
-				if (this.sky_items_id != null) {
-					this.sky_items_id.cancel();
-				}
-			}
+			return skyItems.set(args);
 		}
 
 		if (cmd.getName().equalsIgnoreCase("dechunk")) {
@@ -606,13 +584,6 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 					}
 				}
 			}.runTaskTimer(this, 15, 5);
-		}
-
-		if (this.freeze) {
-			Player p = event.getPlayer();
-			if (p.getGameMode() == GameMode.SURVIVAL) {
-				event.setCancelled(true);
-			}
 		}
 
 		// spawn tnt when sneaking
