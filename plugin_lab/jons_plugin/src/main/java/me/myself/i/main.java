@@ -8,10 +8,12 @@ import java.util.Set;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -40,6 +42,7 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 	BigBoom bigBoom;
 	Mines mines;
 	FartTnt fartTnt;
+	TpGame tpGame;
 
 
 	int DECHUNK_RADIUS = 1000;
@@ -68,6 +71,7 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 		bigBoom = new BigBoom(this);
 		mines = new Mines(this);
 		fartTnt = new FartTnt(this);
+		tpGame = new TpGame(this);
 
 	}
 
@@ -87,60 +91,28 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 
 		}
 
-		// switch for boom_arrows
-		if (cmd.getName().equalsIgnoreCase("boom_arrows")) {
-			return boomArrows.cmd(args);
-		}
+		String cleanedCMD = cmd.getName().toLowerCase();
+		cleanedCMD = cleanedCMD.replaceAll("-", "_");
 
-		if (cmd.getName().equalsIgnoreCase("shared_damage")) {
-			return sharedDamage.cmd(args);
+		switch(cleanedCMD){
+			case "boom_arrows": return boomArrows.cmd(args);
+			case "shared_damage": return sharedDamage.cmd(args);
+			case "pits": return pits.cmd(args);
+			case "freeze": return freeze.cmd(args);
+			case "pvp": return pvp.cmd(args);
+			case "big_boom": return bigBoom.cmd(args);
+			case "fart_tnt": fartTnt.cmd(args); return true;
+			case "sky_items": return skyItems.cmd(args);
+			case "dechunk": return dechunk.cmd(args);
+			case "antigravity_game": return antiGravityGame.cmd(args);
+			case "antigravity": return antiGravity.onCommand(sender, cmd, label, args);
+			case "dangerous_animals": return dangerousAnimals.cmd(args);
+			case "mines": return mines.cmd(player, args);
+			case "tp_game": return tpGame.cmd(args);
+			case "nou": return NoU(player);
+			case "bunby": return bunny(player);
+			default: return false;
 		}
-
-		if (cmd.getName().equalsIgnoreCase("pits")) {
-			return pits.cmd(args);
-		}
-
-		if (cmd.getName().equalsIgnoreCase("freeze")) {
-			return freeze.cmd(args);
-		}
-
-		if (cmd.getName().equalsIgnoreCase("pvp")) {
-			return pvp.cmd(args);
-		}
-
-		if (cmd.getName().equalsIgnoreCase("big_boom")) {
-			return bigBoom.cmd(args);
-		}
-
-		if (cmd.getName().equalsIgnoreCase("fart_tnt")) {
-			fartTnt.cmd(args);
-		}
-
-		if (cmd.getName().equalsIgnoreCase("sky_items")) {
-			return skyItems.cmd(args);
-		}
-
-		if (cmd.getName().equalsIgnoreCase("dechunk")) {
-			return dechunk.cmd(args);
-		}
-		
-		if (cmd.getName().equalsIgnoreCase("antigravity_game")) {
-			return antiGravityGame.cmd(args);
-		}
-
-		if (cmd.getName().equalsIgnoreCase("antigravity")) {
-			return antiGravity.onCommand(sender, cmd, label, args);
-		}
-	
-		if (cmd.getName().equalsIgnoreCase("dangerous_anaimals")) {
-			return dangerousAnimals.cmd(args);
-		}
-
-		if (cmd.getName().equalsIgnoreCase("mines")) {
-			return mines.cmd(player, args);
-		}
-
-		return false;
 	}
 
 	@EventHandler
@@ -149,6 +121,19 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 		player.sendMessage("Hello Darkness my old friend");
 	}
 
+
+	private boolean NoU(Player player) {
+		player.sendMessage("No U");
+		return true;
+	}
+
+	private boolean bunny(Player player) {
+		Location location = player.getLocation();
+		for (int i = 0; i < 100; i++) {
+			player.getWorld().spawnEntity(location, EntityType.RABBIT);
+		}
+		return true;
+	}
 
 	@EventHandler
 	public void onInteract(PlayerInteractEvent event) {

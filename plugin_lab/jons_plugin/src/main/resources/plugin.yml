@@ -42,7 +42,7 @@ commands:
         description: "Unloads Chunks"
         permission: op
 
-    dangerous_anaimals:
+    dangerous_animals:
         usage: "Usage: /<command> [ on | off ] [ neutral | hostile ] [ easy | medium | hard | insane ]"
         description: "Unloads Chunks"
         permission: op
@@ -73,7 +73,7 @@ commands:
         permission: op
 
     tp_game:
-        usage: "Usage: /<command> [ on | off ]"
+        usage: "Usage: /<command> [ start | stop ]"
         description: "Randomly teleports players to different locations"
         permission: op
 
