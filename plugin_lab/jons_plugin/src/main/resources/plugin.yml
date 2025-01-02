@@ -77,6 +77,15 @@ commands:
         description: "Randomly teleports players to different locations"
         permission: op
 
+    bunby:
+        usage: "Usage: /<command>"
+        description: "Spawns bunnies"
+        permission: op
+
+    nou:
+        usage: "Usage: /<command>"
+        description: "No U"
+
 
 permissions:
     default: op

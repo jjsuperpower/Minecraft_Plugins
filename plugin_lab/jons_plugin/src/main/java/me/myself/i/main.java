@@ -172,6 +172,18 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 		Entity e = event.getEntity();
 		e.getWorld().strikeLightning(e.getLocation().add(0, 10, 0));
 	}
+	
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        // Get the player who joined
+        Player player = event.getPlayer();
+
+        // Define a safe location (example: world spawn location)
+        Location safeLocation = player.getWorld().getSpawnLocation();
+
+        // Teleport the player to the safe location
+        player.teleport(safeLocation);
+    }
 
 	@EventHandler
 	public void onEntityDeath(EntityDeathEvent event) {

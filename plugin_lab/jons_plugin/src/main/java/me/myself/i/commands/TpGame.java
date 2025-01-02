@@ -123,7 +123,7 @@ public class TpGame extends BukkitRunnable {
 				do {
 					randSpawnX = ThreadLocalRandom.current().nextInt(-maxOriginRadius, maxOriginRadius);
 					randSpawnZ = ThreadLocalRandom.current().nextInt(-maxOriginRadius, maxOriginRadius);
-					spawnY = Bukkit.getWorld("world").getHighestBlockYAt(randSpawnX, randSpawnZ);
+					spawnY = Bukkit.getWorld("world").getHighestBlockYAt(randSpawnX, randSpawnZ)+1;
 
 					biome = Bukkit.getWorld("world").getBiome(randSpawnX, spawnY, randSpawnZ);
 					numAttempts++;
