@@ -72,6 +72,11 @@ commands:
         description: "Drops item from sky to each player"
         permission: op
 
+    tp_game:
+        usage: "Usage: /<command> [ on | off ]"
+        description: "Randomly teleports players to different locations"
+        permission: op
+
 
 permissions:
     default: op

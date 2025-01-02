@@ -72,8 +72,8 @@ public class Dechunk extends BukkitRunnable {
 									for (int y = -64; y < 200; y++) {
 										m = c.getBlock(x, y, z).getType();
 										//using OR is faster than AND
-										if ((m == Material.OBSIDIAN) || (m == Material.ENDER_PORTAL_FRAME)
-												|| (m == Material.ENDER_PORTAL) || (m == Material.MOB_SPAWNER)
+										if ((m == Material.OBSIDIAN) || (m == Material.END_PORTAL_FRAME)
+												|| (m == Material.END_PORTAL) || (m == Material.SPAWNER)
 												|| (m == Material.NETHER_BRICK))
 											;
 										else {

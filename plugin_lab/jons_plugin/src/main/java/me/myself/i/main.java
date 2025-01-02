@@ -174,13 +174,12 @@ public class main extends JavaPlugin implements org.bukkit.event.Listener {
 		//Bukkit.getServer().broadcastMessage(event.getEntity().getName());
 		//player.sendMessage(String.valueOf(event.getDamage()));
 
-		this.dangerousAnimals.onDamage((EntityDamageByEntityEvent) event);
-
 	}
 
 	@EventHandler
 	public void onDamage(EntityDamageByEntityEvent event) {
 		this.pvp.onDamage(event);
+		this.dangerousAnimals.onDamage(event);
 	}
 
 	@EventHandler

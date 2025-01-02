@@ -10,6 +10,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.plugin.Plugin;
 
 import java.util.ArrayList;
@@ -36,9 +37,11 @@ public class Mines implements Listener {
                 player.sendMessage("Automatically turning mines on");
                 this.mines = true;
             }
-            ItemStack boomHoe = new ItemStack(Material.GOLD_HOE);
+            ItemStack boomHoe = new ItemStack(Material.GOLDEN_HOE);
             ItemMeta boomHoeMeta = boomHoe.getItemMeta();
-            boomHoe.setDurability((short) 0);
+            if (boomHoeMeta instanceof Damageable) {
+                ((Damageable) boomHoeMeta).setDamage(0);
+            }
             boomHoeMeta.setDisplayName(ChatColor.GREEN + "" + ChatColor.BOLD + "Miner");
             List<String> lore = new ArrayList<>();
             lore.add("");
@@ -73,7 +76,7 @@ public class Mines implements Listener {
             Player player = event.getPlayer();
             // player.sendMessage("boomHoe event triggered");
             ItemStack item = player.getInventory().getItemInMainHand();
-            if (item != null && item.getType() == Material.GOLD_HOE && item.getItemMeta().getDisplayName().equals(ChatColor.GREEN + "" + ChatColor.BOLD + "Miner")) {
+            if (item != null && item.getType() == Material.GOLDEN_HOE && item.getItemMeta().getDisplayName().equals(ChatColor.GREEN + "" + ChatColor.BOLD + "Miner")) {
                 player.getWorld().getBlockAt(player.getLocation().add(0, -1, 0)).setType(Material.TNT);
             }
         }
